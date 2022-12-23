@@ -1,6 +1,7 @@
 import time
 import random
 import httpx
+import json
 
 
 # 选择
@@ -264,4 +265,6 @@ def get_user_agent():
 # API 获取 Json 数据
 async def get_data_json(url_arg):
     api_url = "https://api.null00.com/world/ZHCN/" + url_arg
-    return httpx.get(url=api_url, headers=get_user_agent()).json()
+    async with httpx.AsyncClient() as client:
+        r = await client.get(url=api_url, headers=get_user_agent())
+    return json.loads(r.text)
