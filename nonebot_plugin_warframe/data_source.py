@@ -1,7 +1,8 @@
-import time
-import random
-import httpx
 import json
+import random
+import time
+
+import httpx
 
 
 # 选择
@@ -18,7 +19,7 @@ async def chose_way(msg: str):
         case "索拉里斯" | "金星":
             return await get_solaris()
         case "赏金":
-            return await get_bounty()
+            return bounty_usage_help()
         case "裂隙":
             return await get_fissures()
         case "奸商":
@@ -39,12 +40,14 @@ async def chose_way(msg: str):
 
 # 菜单
 async def menu():
-    return f"命令头：wf、warframe、星际战甲" \
-           f"\n参数：" \
-           f"\n==================" \
-           f"\n警报丨入侵丨赏金丨突击丨裂隙" \
-           f"\n章节丨地球丨赛特斯丨索拉里斯" \
-           f"\n奸商丨事件丨新闻丨每日优惠"
+    return (
+        "命令头：wf、warframe、星际战甲"
+        "\n参数："
+        "\n=================="
+        "\n警报丨入侵丨赏金丨突击丨裂隙"
+        "\n章节丨地球丨赛特斯丨索拉里斯"
+        "\n奸商丨事件丨新闻丨每日优惠"
+    )
 
 
 # 警报
@@ -52,11 +55,13 @@ async def get_alerts():
     data = await get_data_json("alerts")
     temp_alerts = "=================="
     for alert in data:
-        temp_alerts += f"\n{alert['location']}" \
-                       f"\n{alert['missionType']}丨{alert['faction']}（{alert['minEnemyLevel']} ~ {alert['maxEnemyLevel']}）" \
-                       f"\n奖励丨星币 * {alert['credits']}"
+        temp_alerts += (
+            f"\n{alert['location']}"
+            f"\n{alert['missionType']}丨{alert['faction']}（{alert['minEnemyLevel']} ~ {alert['maxEnemyLevel']}）"
+            f"\n奖励丨星币 * {alert['credits']}"
+        )
         temp_reward = ""
-        for alert_reward in alert['rewards']:
+        for alert_reward in alert["rewards"]:
             temp_reward += f"\n\t{alert_reward['item']} * {alert_reward['itemCount']}"
         temp_alerts += temp_reward + "\n=================="
     return temp_alerts
@@ -67,58 +72,85 @@ async def get_news():
     data = await get_data_json("news")
     temp_news = "=================="
     for new in data:
-        temp_news += f"\n{new['defaultMessages']}" \
-                     f"\n时间丨{await get_format_time('%Y-%m-%d %H:%M:%S', await get_gm_time(new['date']))}" \
-                     f"\n链接丨{new['prop']}" \
-                     f"\n=================="
+        temp_news += (
+            f"\n{new['defaultMessages']}"
+            f"\n时间丨{await get_format_time('%Y-%m-%d %H:%M:%S', await get_gm_time(new['date']))}"
+            f"\n链接丨{new['prop']}"
+            f"\n=================="
+        )
     return temp_news
 
 
 # 赛特斯
 async def get_cetus():
     data = await get_data_json("cetus")
-    day = '白天' if data['day'] else '黑夜'
-    temp_cetus = f"==================" \
-                 f"\n{day}\t丨\t{await get_format_time('%H时%M分%S秒', await get_gm_time(data['cetusTime'] - time.time()))}" \
-                 f"\n交替\t丨\t{await get_format_time('%H时%M分%S秒', await get_local_time(data['cetusTime']))}" \
-                 f"\n=================="
+    day = "白天" if data["day"] else "黑夜"
+    temp_cetus = (
+        f"=================="
+        f"\n{day}\t丨\t{await get_format_time('%H时%M分%S秒', await get_gm_time(data['cetusTime'] - time.time()))}"
+        f"\n交替\t丨\t{await get_format_time('%H时%M分%S秒', await get_local_time(data['cetusTime']))}"
+        f"\n=================="
+    )
     return temp_cetus
 
 
 # 地球
 async def get_earth():
     data = await get_data_json("earth")
-    temp_earth = "==================" \
-                 f"\n{'白天' if data['day'] else '黑夜'}\t丨\t{await get_format_time('%H时%M分%S秒', await get_gm_time(data['earthDate'] - int(time.time())))}" \
-                 f"\n交替\t丨\t{await get_format_time('%H时%M分%S秒', await get_local_time(data['earthDate']))}" \
-                 f"\n=================="
+    temp_earth = (
+        "=================="
+        f"\n{'白天' if data['day'] else '黑夜'}\t丨\t{await get_format_time('%H时%M分%S秒', await get_gm_time(data['earthDate'] - int(time.time())))}"
+        f"\n交替\t丨\t{await get_format_time('%H时%M分%S秒', await get_local_time(data['earthDate']))}"
+        f"\n=================="
+    )
     return temp_earth
 
 
 # 索拉里斯
 async def get_solaris():
     data = await get_data_json("solaris")
-    state = '温暖'
-    if data['state'] == 2:
-        state = '寒冷'
-    elif data['state'] in [4, 1]:
-        state = '极寒'
-    return "==================" \
-           f"\n{state}\t丨\t{await get_format_time('%H时%M分%S秒', await get_gm_time(data['solarisExpiry'] - int(time.time())))}" \
-           f"\n交替\t丨\t{await get_format_time('%H时%M分%S秒', await get_local_time(data['solarisExpiry']))}" \
-           f"\n=================="
+    state = "温暖"
+    if data["state"] == 2:
+        state = "寒冷"
+    elif data["state"] in [4, 1]:
+        state = "极寒"
+    return (
+        "=================="
+        f"\n{state}\t丨\t{await get_format_time('%H时%M分%S秒', await get_gm_time(data['solarisExpiry'] - int(time.time())))}"
+        f"\n交替\t丨\t{await get_format_time('%H时%M分%S秒', await get_local_time(data['solarisExpiry']))}"
+        f"\n=================="
+    )
 
 
-# 赏金
-async def get_bounty():
+def bounty_usage_help() -> str:
+    return "请使用以下更具体的命令：\n地球赏金 / 金星赏金 / 火卫二赏金\n示例：金星赏金"
+
+
+# 赏金（必须指定地区，通过对应命令调用）
+async def get_bounty(region: str):
     data = await get_data_json("bounty")
-    temp_bounty = "=================="
+    region_keywords = {
+        "地球": ["地球", "赛特斯", "平原", "Konzu", "孔祖"],
+        "金星": ["金星", "索拉里斯", "福尔图娜", "Fortuna", "Eudico", "尤迪科"],
+        "火卫二": ["火卫二", "魔胎之境", "Deimos", "Mother", "母亲"],
+    }
+    key_list = region_keywords.get(region, [region])
+    filtered = []
     for bounty in data:
+        tag = bounty.get("tag", "")
+        if any(k.lower() in tag.lower() for k in key_list):
+            filtered.append(bounty)
+    if not filtered:
+        return f"未找到 {region} 相关赏金信息"
+    temp_bounty = f"{region}赏金=================="
+    for bounty in filtered:
         temp_bounty += f"\n{bounty['tag']}   剩余时间：{await get_format_time('%H时%M分%S秒', await get_gm_time(bounty['expiry'] - int(time.time())))}"
         temp_jobs = ""
-        for job in bounty['jobs']:
-            temp_jobs += f"\n\t{job['jobType']}" \
-                         f"\n\t\t奖励：{job['rewards'].replace('<br />', '、')}"
+        for job in bounty["jobs"]:
+            temp_jobs += (
+                f"\n\t{job['jobType']}"
+                f"\n\t\t奖励：{job['rewards'].replace('<br />', '、')}"
+            )
         temp_bounty += temp_jobs + "\n=================="
     return temp_bounty
 
@@ -135,24 +167,28 @@ async def get_fissures():
 # 奸商
 async def get_voidTrader():
     data = await get_data_json("trader")
-    if time.time() < data['activation']:
-        voidTrader_time = int(data['activation'] - time.time() - 86400)
+    if time.time() < data["activation"]:
+        voidTrader_time = int(data["activation"] - time.time() - 86400)
     else:
-        voidTrader_time = int(data['expiry'] - int(time.time()))
-    return "==================" \
-           f"\n{data['character']}" \
-           f"\n地点丨{data['node']}" \
-           f"\n剩余丨{await get_format_time('%d天%H时%M分%S秒', await get_gm_time(voidTrader_time))}" \
-           f"\n=================="
+        voidTrader_time = int(data["expiry"] - int(time.time()))
+    return (
+        "=================="
+        f"\n{data['character']}"
+        f"\n地点丨{data['node']}"
+        f"\n剩余丨{await get_format_time('%d天%H时%M分%S秒', await get_gm_time(voidTrader_time))}"
+        f"\n=================="
+    )
 
 
 # 突击
 async def get_sortie():
     data = await get_data_json("sortie")
-    temp_sortie = "==================" \
-                  f"\n{data['boss']}  {await get_format_time('%H时%M分%S秒', await get_gm_time(data['expiry'] - int(time.time())))}" \
-                  f"\n{data['faction']}"
-    for variants in data['variants']:
+    temp_sortie = (
+        "=================="
+        f"\n{data['boss']}  {await get_format_time('%H时%M分%S秒', await get_gm_time(data['expiry'] - int(time.time())))}"
+        f"\n{data['faction']}"
+    )
+    for variants in data["variants"]:
         temp_sortie += f"\n\t{variants['missionType']} \t丨\t{variants['node']}\t丨\t{variants['modifierType']}"
     return temp_sortie
 
@@ -172,12 +208,16 @@ async def get_invasions():
     temp_invasions = ""
     for invasion in data:
         temp_invasions += f"{invasion['node']}  \t丨\t{invasion['locTag']}   \t丨\t"
-        if invasion['attacker']['rewards']:
-            for attacker_reward in invasion['attacker']['rewards']:
-                temp_invasions += f"{attacker_reward['item']}*{attacker_reward['itemCount']}"
+        if invasion["attacker"]["rewards"]:
+            for attacker_reward in invasion["attacker"]["rewards"]:
+                temp_invasions += (
+                    f"{attacker_reward['item']}*{attacker_reward['itemCount']}"
+                )
             temp_invasions += " / "
-        for defender_reward in invasion['defender']['rewards']:
-            temp_invasions += f"{defender_reward['item']}*{defender_reward['itemCount']}\n"
+        for defender_reward in invasion["defender"]["rewards"]:
+            temp_invasions += (
+                f"{defender_reward['item']}*{defender_reward['itemCount']}\n"
+            )
     return temp_invasions
 
 
@@ -194,7 +234,7 @@ async def get_events():
 async def get_season():
     data = await get_data_json("season")
     temp_season = ""
-    for challenge in data['challenges']:
+    for challenge in data["challenges"]:
         temp_season += f"{challenge['cycle']}\t丨\t{challenge['xp']}xp\t丨\t{challenge['challenge']}\n"
     return temp_season
 
@@ -205,12 +245,12 @@ async def get_format_time(f, t):
 
 
 # GM 时区时间
-async def get_gm_time(t) -> int:
+async def get_gm_time(t):
     return time.gmtime(t)
 
 
 # 当地时区时间
-async def get_local_time(t) -> int:
+async def get_local_time(t):
     return time.localtime(t)
 
 
