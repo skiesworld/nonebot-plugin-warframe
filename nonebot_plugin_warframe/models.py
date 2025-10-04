@@ -2,6 +2,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from nonebot_plugin_warframe.utils import format_timestamp
+
 
 class Reward(BaseModel):
     """
@@ -23,6 +25,10 @@ class Reward(BaseModel):
 
 
 class Alert(BaseModel):
+    """
+    Warframe世界中的警报事件数据模型。
+    """
+
     oid: str
     """警报对象ID"""
     activation: int
@@ -55,12 +61,12 @@ class Alert(BaseModel):
             f"{rewards_str}\n=================="
         )
 
-    """
-    Warframe世界中的警报事件数据模型。
-    """
-
 
 class New(BaseModel):
+    """
+    游戏内新闻公告数据模型。
+    """
+
     priority: bool
     """是否为重要新闻"""
     date: int
@@ -85,10 +91,6 @@ class New(BaseModel):
             f"链接丨{self.prop}\n=================="
         )
 
-    """
-    游戏内新闻公告数据模型。
-    """
-
 
 class Cetus(BaseModel):
     """
@@ -106,6 +108,16 @@ class Cetus(BaseModel):
     day: bool
     """是否为白天"""
 
+    def __str__(self) -> str:
+        return (
+            f"==================\n"
+            f"赛特斯昼夜循环状态\n"
+            f"当前状态: {'白天' if self.day else '黑夜'}\n"
+            f"开始时间: {format_timestamp(self.activation)}\n"
+            f"结束时间: {format_timestamp(self.expiry)}\n"
+            f"=================="
+        )
+
 
 class Earth(BaseModel):
     """
@@ -116,6 +128,15 @@ class Earth(BaseModel):
     """地球昼夜循环时间（时间戳）"""
     day: bool
     """是否为白天"""
+
+    def __str__(self) -> str:
+        return (
+            f"==================\n"
+            f"地球昼夜循环状态\n"
+            f"当前状态: {'白天' if self.day else '黑夜'}\n"
+            f"时间: {format_timestamp(self.earth_date)}\n"
+            f"=================="
+        )
 
 
 class Solaris(BaseModel):
@@ -137,6 +158,16 @@ class Solaris(BaseModel):
     """索拉里斯下次长周期时间"""
     state: int
     """当前昼夜状态"""
+
+    def __str__(self) -> str:
+        return (
+            f"==================\n"
+            f"索拉里斯昼夜循环状态\n"
+            f"当前状态: {self.state}\n"
+            f"开始时间: {format_timestamp(self.activation)}\n"
+            f"结束时间: {format_timestamp(self.expiry)}\n"
+            f"=================="
+        )
 
 
 class Job(BaseModel):
@@ -180,7 +211,7 @@ class Bounty(BaseModel):
     """赏金任务列表"""
 
     def __str__(self) -> str:
-        jobs_str = ""
+        jobs_str = "=================="
         for job in self.jobs:
             jobs_str += f"\n{job}"
         return f"{self.tag}   剩余时间：{self.expiry}\n{jobs_str}\n=================="
@@ -209,7 +240,13 @@ class Fissure(BaseModel):
     """是否为高难度裂隙"""
 
     def __str__(self) -> str:
-        return f"{self.modifier}\t丨\t{self.mission_type}\t丨\t{self.node}\t丨\t{self.expiry}\n"
+        return (
+            "=================="
+            f"{self.modifier}"
+            f"\t丨\t{self.mission_type}"
+            f"\t丨\t{self.node}"
+            f"\t丨\t{self.expiry}\n"
+        )
 
 
 class VoidTrader(BaseModel):
@@ -234,10 +271,11 @@ class VoidTrader(BaseModel):
 
     def __str__(self) -> str:
         return (
-            f"==================\n"
+            "==================\n"
             f"{self.character}\n"
             f"地点丨{self.node}\n"
-            f"剩余丨{self.expiry}\n=================="
+            f"截止丨{format_timestamp(self.expiry)}\n"
+            "=================="
         )
 
 
@@ -334,6 +372,9 @@ class Reward1(BaseModel):
     count: bool
     """是否为计数型奖励"""
 
+    def __str__(self) -> str:
+        return f"{self.item}*{self.item_count}"
+
 
 class Attacker(BaseModel):
     """
@@ -345,24 +386,8 @@ class Attacker(BaseModel):
     rewards: list[Reward1]
     """奖励列表"""
 
-
-class Reward2(BaseModel):
-    """
-    入侵奖励（防守方）数据模型。
-    """
-
-    id: Any
-    """奖励唯一标识符"""
-    oid: str
-    """奖励对象ID"""
-    item: str
-    """奖励物品名称"""
-    item_count: int = Field(..., alias="itemCount")
-    """奖励物品数量"""
-    image_url: str = Field(..., alias="imageUrl")
-    """奖励物品图片链接"""
-    count: bool
-    """是否为计数型奖励"""
+    def __str__(self) -> str:
+        return ", ".join(str(reward) for reward in self.rewards)
 
 
 class Defender(BaseModel):
@@ -372,8 +397,11 @@ class Defender(BaseModel):
 
     faction: str
     """阵营名称"""
-    rewards: list[Reward2]
+    rewards: list[Reward1]
     """奖励列表"""
+
+    def __str__(self) -> str:
+        return ", ".join(str(reward) for reward in self.rewards)
 
 
 class Invasion(BaseModel):

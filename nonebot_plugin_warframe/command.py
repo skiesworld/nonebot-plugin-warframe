@@ -1,6 +1,8 @@
 from nonebot import on_command
 from nonebot.matcher import Matcher
 
+from nonebot_plugin_warframe.models import Alert
+
 from .api import API
 
 api = API()
@@ -10,11 +12,10 @@ alert_command = on_command("警报", priority=5)
 
 @alert_command.handle()
 async def handle_alert(matcher: Matcher):
-    result = await api.get_alerts()
-    formatted_result = (
-        "\n".join(map(str, result)) if isinstance(result, list) else str(result)
-    )
-    await matcher.finish(formatted_result)
+    result: list[Alert] = await api.get_alerts()
+
+    message = "\n".join(map(str, result)) if result else "当前没有警报"
+    await matcher.finish(message)
 
 
 news_command = on_command("新闻", priority=5)
@@ -35,8 +36,7 @@ cetus_command = on_command("夜灵平原", aliases={"赛特斯", "希图斯"}, p
 @cetus_command.handle()
 async def handle_cetus(matcher: Matcher):
     result = await api.get_cetus()
-    formatted_result = str(result)
-    await matcher.finish(formatted_result)
+    await matcher.finish(str(result))
 
 
 earth_command = on_command("地球", priority=5)
@@ -45,8 +45,7 @@ earth_command = on_command("地球", priority=5)
 @earth_command.handle()
 async def handle_earth(matcher: Matcher):
     result = await api.get_earth()
-    formatted_result = str(result)
-    await matcher.finish(formatted_result)
+    await matcher.finish(str(result))
 
 
 solaris_command = on_command("索拉里斯", aliases={"金星"}, priority=5)
@@ -55,8 +54,7 @@ solaris_command = on_command("索拉里斯", aliases={"金星"}, priority=5)
 @solaris_command.handle()
 async def handle_solaris(matcher: Matcher):
     result = await api.get_solaris()
-    formatted_result = str(result)
-    await matcher.finish(formatted_result)
+    await matcher.finish(str(result))
 
 
 fissures_command = on_command("虚空裂隙", aliases={"裂隙"}, priority=5)
