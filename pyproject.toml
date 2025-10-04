@@ -1,6 +1,6 @@
 [project]
 name = "nonebot-plugin-warframe"
-version = "0.0.6"
+version = "0.0.7"
 description = "基于NoneBot的星际战甲事件查询插件"
 authors = [{ name = "17TheWord", email = "17theword@gmail.com" }]
 requires-python = ">=3.10, <4"
