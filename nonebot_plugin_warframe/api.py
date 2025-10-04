@@ -25,14 +25,11 @@ T = TypeVar("T")
 class API:
     url = "https://api.null00.com/world/ZHCN/"
 
-    def __init__(self) -> None:
-        self._client = AsyncClient()
-
     async def _query(self, endpoint: str, type_: type[T]) -> T:
-        resp = await self._client.get(self.url + endpoint)
-        resp.raise_for_status()
-        # return resp.json()
-        return type_validate_python(type_, resp.json())
+        async with AsyncClient() as client:
+            resp = await client.get(self.url + endpoint)
+            resp.raise_for_status()
+            return type_validate_python(type_, resp.json())
 
     async def get_alerts(self) -> list[Alert]:
         return await self._query("alerts", list[Alert])
