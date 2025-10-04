@@ -59,27 +59,6 @@ class Alert(BaseModel):
     Warframe世界中的警报事件数据模型。
     """
 
-    oid: str
-    """警报对象ID"""
-    activation: int
-    """警报开始时间（时间戳）"""
-    expiry: int
-    """警报结束时间（时间戳）"""
-    mission_type: str = Field(..., alias="missionType")
-    """任务类型"""
-    faction: str
-    """敌方阵营"""
-    location: str
-    """任务地点"""
-    min_enemy_level: int = Field(..., alias="minEnemyLevel")
-    """敌人最低等级"""
-    max_enemy_level: int = Field(..., alias="maxEnemyLevel")
-    """敌人最高等级"""
-    credits: int
-    """现金奖励"""
-    rewards: list[Reward]
-    """奖励列表"""
-
 
 class New(BaseModel):
     priority: bool
@@ -109,23 +88,6 @@ class New(BaseModel):
     """
     游戏内新闻公告数据模型。
     """
-
-    priority: bool
-    """是否为重要新闻"""
-    date: int
-    """发布时间（时间戳）"""
-    event_start_date: int | None = Field(..., alias="eventStartDate")
-    """活动开始时间（时间戳）"""
-    default_messages: str = Field(..., alias="defaultMessages")
-    """默认消息内容"""
-    oid: str
-    """新闻对象ID"""
-    image_url: Any = Field(..., alias="imageUrl")
-    """新闻图片链接"""
-    mobile_only: bool = Field(..., alias="mobileOnly")
-    """是否仅限移动端"""
-    prop: str
-    """其他属性（API扩展字段）"""
 
 
 class Cetus(BaseModel):
@@ -295,17 +257,6 @@ class Variant(BaseModel):
 
 
 class Sortie(BaseModel):
-    def __str__(self) -> str:
-        variants_str = ""
-        for variant in self.variants:
-            variants_str += f"\n\t{variant.mission_type} \t丨\t{variant.node}\t丨\t{variant.modifier_type}"
-        return (
-            f"==================\n"
-            f"{self.boss}  {self.expiry}\n"
-            f"{self.faction}"
-            f"{variants_str}"
-        )
-
     """
     突击任务整体数据模型。
     """
@@ -325,11 +276,19 @@ class Sortie(BaseModel):
     variants: list[Variant]
     """突击任务变体列表"""
 
+    def __str__(self) -> str:
+        variants_str = ""
+        for variant in self.variants:
+            variants_str += f"\n\t{variant.mission_type} \t丨\t{variant.node}\t丨\t{variant.modifier_type}"
+        return (
+            f"==================\n"
+            f"{self.boss}  {self.expiry}\n"
+            f"{self.faction}"
+            f"{variants_str}"
+        )
+
 
 class DailyDeal(BaseModel):
-    def __str__(self) -> str:
-        return f"{self.item}丨{self.discount}%折扣丨{self.sale_price}白金丨剩余 {self.expiry}\n"
-
     """
     每日特惠商品数据模型。
     """
@@ -352,6 +311,9 @@ class DailyDeal(BaseModel):
     """已售数量"""
     image_url: str = Field(..., alias="imageUrl")
     """商品图片链接"""
+
+    def __str__(self) -> str:
+        return f"{self.item}丨{self.discount}%折扣丨{self.sale_price}白金丨剩余 {self.expiry}\n"
 
 
 class Reward1(BaseModel):
@@ -415,19 +377,6 @@ class Defender(BaseModel):
 
 
 class Invasion(BaseModel):
-    def __str__(self) -> str:
-        attacker_str = ""
-        if self.attacker.rewards:
-            for r in self.attacker.rewards:
-                attacker_str += f"{r.item}*{r.item_count}"
-            attacker_str += " / "
-        defender_str = ""
-        for r in self.defender.rewards:
-            defender_str += f"{r.item}*{r.item_count}"
-        return (
-            f"{self.node}  \t丨\t{self.loc_tag}   \t丨\t{attacker_str}{defender_str}\n"
-        )
-
     """
     入侵事件整体数据模型。
     """
@@ -451,11 +400,21 @@ class Invasion(BaseModel):
     completed: bool
     """是否已完成"""
 
+    def __str__(self) -> str:
+        attacker_str = ""
+        if self.attacker.rewards:
+            for r in self.attacker.rewards:
+                attacker_str += f"{r.item}*{r.item_count}"
+            attacker_str += " / "
+        defender_str = ""
+        for r in self.defender.rewards:
+            defender_str += f"{r.item}*{r.item_count}"
+        return (
+            f"{self.node}  \t丨\t{self.loc_tag}   \t丨\t{attacker_str}{defender_str}\n"
+        )
+
 
 class Event(BaseModel):
-    def __str__(self) -> str:
-        return f"{self.tag}丨{self.expiry}\n"
-
     """
     世界事件（如节点健康等）数据模型。
     """
@@ -473,11 +432,11 @@ class Event(BaseModel):
     health_pct: float | None = Field(..., alias="healthPct")
     """节点健康百分比"""
 
+    def __str__(self) -> str:
+        return f"{self.tag}丨{self.expiry}\n"
+
 
 class Challenge(BaseModel):
-    def __str__(self) -> str:
-        return f"{self.cycle}\t丨\t{self.xp}xp\t丨\t{self.challenge}\n"
-
     """
     赛季挑战任务数据模型。
     """
@@ -499,14 +458,11 @@ class Challenge(BaseModel):
     xp: int
     """经验奖励"""
 
+    def __str__(self) -> str:
+        return f"{self.cycle}\t丨\t{self.xp}xp\t丨\t{self.challenge}\n"
+
 
 class Season(BaseModel):
-    def __str__(self) -> str:
-        challenges_str = ""
-        for c in self.challenges:
-            challenges_str += str(c)
-        return challenges_str
-
     """
     赛季活动整体数据模型。
     """
@@ -527,6 +483,12 @@ class Season(BaseModel):
     """挑战列表"""
     reward: str
     """赛季奖励"""
+
+    def __str__(self) -> str:
+        challenges_str = ""
+        for c in self.challenges:
+            challenges_str += str(c)
+        return challenges_str
 
 
 class WarframeData(BaseModel):
